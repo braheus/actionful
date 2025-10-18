@@ -1,7 +1,7 @@
-import { createClient } from "./client";
-import { ActionfulExchange } from "./exchange";
-
-import { createServer } from "./server";
+import { createClient } from "./client.js";
+import { ActionfulExchange } from "./exchange.js";
+import { createServer } from "./server.js";
+import type { RequestOf } from "./util_types.js";
 
 export class EchoExchange extends ActionfulExchange<
     {
@@ -29,10 +29,10 @@ async function test() {
     };
 
     const server = createServer(10000, routes, {
-        echo: async (request) => {
+        echo: async (request: RequestOf<EchoExchange>) => {
             return { pong: request.ping };
         },
-        add: async (request) => {
+        add: async (request: RequestOf<AddExchange>) => {
             return { sum: request.a + request.b };
         },
     });

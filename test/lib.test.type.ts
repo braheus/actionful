@@ -1,7 +1,7 @@
-import { createClient } from "./client";
-import { ActionfulExchange } from "./exchange";
+import { createClient } from "../src/client";
+import { ActionfulExchange } from "../src/exchange";
 
-import { createServer } from "./server";
+import { createServer } from "../src/server";
 
 export class EchoExchange extends ActionfulExchange<
     {

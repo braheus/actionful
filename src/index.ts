@@ -1,5 +1,5 @@
-export { createClient } from "./client";
-export { ActionfulExchange } from "./exchange";
-export { createServer } from "./server";
-export type { ActionfulServer } from "./server";
-export type { ActionfulHandlerDict, RequestOf, ResponseOf } from "./util_types";
+export { createClient } from "./client.js";
+export { ActionfulExchange } from "./exchange.js";
+export { createServer } from "./server.js";
+export type { ActionfulServer } from "./server.js";
+export type { ActionfulHandlerDict, RequestOf, ResponseOf, RouteDict } from "./util_types.js";

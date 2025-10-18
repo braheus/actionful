@@ -1,4 +1,8 @@
-import { ActionfulHandlerDict, ResponseOf, RouteDict } from "./util_types";
+import type {
+    ActionfulHandlerDict,
+    ResponseOf,
+    RouteDict,
+} from "./util_types.js";
 
 export function createClient<Routes extends RouteDict>(
     baseUrl: string,

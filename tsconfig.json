@@ -1,5 +1,44 @@
 {
     "compilerOptions": {
-        "strict": true
-    }
+        // Emit & module system
+        "module": "NodeNext", // honors package.json "type" and "exports"
+        "moduleResolution": "NodeNext",
+        "verbatimModuleSyntax": true, // keep import/export as-is (TS ≥5.0)
+        "target": "ES2022", // modern Node LTS supports ES2022 features natively
+        "lib": ["ES2022"], // no DOM libs for backend
+        "moduleDetection": "force", // only files with imports are modules
+
+        // Declarations & maps (for consumers and debugging)
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+
+        // Project layout
+        "rootDir": "src",
+        "outDir": "dist",
+        "composite": true, // good practice for libraries/refs
+        "incremental": true,
+
+        // Type safety knobs (modern, strict)
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "noImplicitOverride": true,
+        "useUnknownInCatchVariables": true,
+        "noFallthroughCasesInSwitch": true,
+        "noEmitOnError": true,
+
+        // Interop and ergonomics
+        "esModuleInterop": false, // prefer native ESM semantics
+        "resolvePackageJsonExports": true,
+        "resolvePackageJsonImports": true,
+        "skipLibCheck": true, // build speed; safe for published libs
+        "forceConsistentCasingInFileNames": true,
+
+        // Hygiene
+        "stripInternal": true, // omit /** @internal */ from .d.ts
+        "newLine": "lf"
+    },
+    "include": ["src/**/*.ts", "test/lib.test.type.ts"],
+    "exclude": ["node_modules", "dist", "test"]
 }

@@ -1,5 +1,5 @@
 import * as http from "http";
-import { ActionfulHandlerDict, RouteDict } from "./util_types";
+import type { ActionfulHandlerDictExpanded, RouteDict } from "./util_types.js";
 
 export interface ActionfulServer<Routes extends RouteDict> {
     run(): void;
@@ -8,47 +8,59 @@ export interface ActionfulServer<Routes extends RouteDict> {
 export function createServer<Routes extends RouteDict>(
     port: number,
     routes: Routes,
-    handlers: ActionfulHandlerDict<Routes>,
+    handlers: ActionfulHandlerDictExpanded<Routes>,
 ): ActionfulServer<Routes> {
-    return {
-        run() {
-            const server = http.createServer(
-                { keepAliveTimeout: 60_000 },
-                async (req, res) => {
-                    const routeKey = Object.keys(routes).find(
-                        (key) => req.method === "POST" && req.url === "/" + key,
-                    );
-                    if (!routeKey) {
-                        res.statusCode = 404;
-                        res.end(JSON.stringify({ ok: false }));
-                        return;
-                    }
+    function run() {
+        const server = http.createServer(
+            { keepAliveTimeout: 60_000 },
+            async (httpRequest, httpResponse) => {
+                httpResponse.setHeader("Content-Type", "application/json");
+                const routeKey = Object.keys(routes).find(
+                    (key) =>
+                        httpRequest.method === "POST" &&
+                        httpRequest.url?.endsWith("/" + key),
+                ) as keyof Routes | undefined;
+                if (!routeKey) {
+                    httpResponse.statusCode = 404;
+                    httpResponse.end(JSON.stringify({ ok: false }));
+                    return;
+                }
 
-                    // Parse request body
-                    let body = "";
-                    req.on("data", (chunk) => {
-                        body += chunk.toString();
-                    });
-                    req.on("end", async () => {
-                        try {
-                            const requestData = body ? JSON.parse(body) : {};
-                            const response =
-                                await handlers[routeKey](requestData);
-                            res.statusCode = 200;
-                            res.setHeader("Content-Type", "application/json");
-                            res.end(JSON.stringify(response));
-                        } catch (error) {
-                            res.statusCode = 500;
-                            res.end(
-                                JSON.stringify({
-                                    error: "Internal server error",
-                                }),
+                // Parse request body
+                let body = "";
+                httpRequest.on("data", (chunk) => {
+                    body += chunk.toString();
+                });
+                httpRequest.on("end", async () => {
+                    try {
+                        const requestData = body ? JSON.parse(body) : {};
+                        const response = await handlers[routeKey]({
+                            ...requestData,
+                            _headers: httpRequest.headers,
+                        });
+                        httpResponse.statusCode = 200;
+                        if (response._cookies) {
+                            httpResponse.setHeader(
+                                "Set-Cookie",
+                                response._cookies,
                             );
                         }
-                    });
-                },
-            );
-            server.listen(port);
-        },
+                        httpResponse.end(JSON.stringify(response));
+                    } catch (error) {
+                        httpResponse.statusCode = 500;
+                        httpResponse.end(
+                            JSON.stringify({
+                                ok: false,
+                                error: "Internal server error: " + error,
+                            }),
+                        );
+                    }
+                });
+            },
+        );
+        server.listen(port);
+    }
+    return {
+        run,
     };
 }
