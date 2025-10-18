@@ -14,8 +14,12 @@
         }
     },
     "scripts": {
-        "build": "tsc"
+        "build": "./node_modules/.bin/tsc --build --force"
     },
     "author": "Andy Shu",
-    "license": "MIT"
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^24.8.1",
+        "typescript": "^5.9.3"
+    }
 }
